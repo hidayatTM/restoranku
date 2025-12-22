@@ -11,15 +11,15 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('username')->unique()->fillable();
+            $table->string('username')->unique();
             $table->string('password')->nullable();
-            $table->string('fullaname');
-            $table->string('email')->unique()->fillable();
-            $table->string('phone')->unique()->fillable();
+            $table->string('fullname');
+            $table->string('email')->unique();
+            $table->string('phone')->unique();
             $table->unsignedBigInteger('role_id');
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+            $table->foreign('role_id')->references('id')->on('roles');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
