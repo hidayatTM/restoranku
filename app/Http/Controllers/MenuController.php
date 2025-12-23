@@ -35,7 +35,7 @@ class MenuController extends Controller
     public function resetCart()
     {
         Session::forget('cart');
-        return redirect()->route('cart');
+        return redirect()->route('menu');
     }
 
     public function addToCart(Request $request)
@@ -52,6 +52,7 @@ class MenuController extends Controller
         }
 
         $menu = Item::find($menuId);
+
         if (!$menu) {
             return response()->json([
                 'status' => 'error',
@@ -61,10 +62,14 @@ class MenuController extends Controller
 
         $img = $menu->img;
 
-        if (!$img || !file_exists(public_path('img_item_upload/' . $img))) {
+        // Jika URL → pakai langsung
+        if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://')) {
+            // do nothing
+        }
+        // Jika filename lokal tapi file tidak ada → fallback
+        elseif (!file_exists(public_path('img_item_upload/' . $img))) {
             $img = 'no-image.png';
         }
-
 
         $cart = Session::get('cart', []);
 
@@ -76,7 +81,7 @@ class MenuController extends Controller
                     'id' => $menu->id,
                     'name' => $menu->name,
                     'price' => $menu->price,
-                    'img' => $menu->img,
+                    'img' => $img,
                     'qty' => 1,
                 ];
             }

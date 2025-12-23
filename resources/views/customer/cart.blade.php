@@ -42,9 +42,15 @@
                     @foreach ($cart as $cartItem)
                     <tr>
                         <th scope="row">
-                            {{-- <div class="d-flex align-items-center">
-                                <img src="{{ asset('img_item_upload/' . $cartItem['img']) }}" class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt="" onerror="this.onerror=null;this.src='{{ $cartItem['img'] }}';">
-                            </div> --}}
+                            <div class="d-flex align-items-center">
+                                <img 
+                                src="{{ str_starts_with($cartItem['img'], 'http') 
+                                    ? $cartItem['img'] 
+                                    : asset('img_item_upload/' . $cartItem['img']) }}"
+                                class="img-fluid me-5 rounded-circle" style="width: 80px; height: 80px;" alt=""
+                                onerror="this.src='{{ asset('img_item_upload/no-image.png') }}'">
+                              
+                            </div>
                         </th>
                         <td>
                             <p class="mb-0 mt-4">{{ $cartItem['name'] }}</p>
