@@ -13,7 +13,7 @@ class ItemFactory extends Factory
         return [
             'name' => $this->faker->word(),
             'description' => $this->faker->sentence(),
-            'price' => $this->faker->randomFloat(2, 10000, 1000000),
+            'price' => $this->faker->numberBetween(10, 50) * 1000,
             // 'category_id' => \App\Models\Category::factory(),
             'category_id' => $this->faker->numberBetween(1, 3),
             'img' => fake()->randomElement(
@@ -25,7 +25,7 @@ class ItemFactory extends Factory
 
                 ]
             ),
-            'is_active' => $this->faker->boolean(),
+            'is_active' => $this->faker->boolean(true),
 
         ];
     }
