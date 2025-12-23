@@ -61,13 +61,13 @@
                         <td>
                             <div class="input-group quantity mt-4" style="width: 100px;">
                                 <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-minus rounded-circle bg-light border" >
+                                    <button class="btn btn-sm btn-minus  rounded-circle bg-light border" onclick="updateQuantity('{{ $cartItem['id'] }}', -1)">
                                     <i class="fa fa-minus"></i>
                                     </button>
                                 </div>
-                                <input type="text" class="form-control form-control-sm text-center border-0" value="{{ $cartItem['qty'] }}">
+                                <input id="qty-{{ $cartItem['id'] }}" type="text" class="form-control form-control-sm text-center border-0 bg-transparent" value="{{ $cartItem['qty'] }}" readonly>
                                 <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border">
+                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border" onclick="updateQuantity('{{ $cartItem['id'] }}', 1)">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
@@ -77,16 +77,12 @@
                             <p class="mb-0 mt-4">Rp{{ number_format($cartItem['price'] * $cartItem['qty'], 0, ',', '.') }}</p>
                         </td>
                         <td>
-                            <button class="btn btn-md rounded-circle bg-light border mt-4" >
+                            <button class="btn btn-md rounded-circle bg-light border mt-4" onclick="if(confirm('Apakah anda yakin ingin menghapus pesanan ini?')) {removeItemFromCart('{{ $cartItem['id'] }}')}" >
                                 <i class="fa fa-times text-danger"></i>
                             </button>
                         </td>
                     </tr>
-
-                        
                     @endforeach
-                   
-                   
                 </tbody>
             </table>
         </div>
@@ -115,7 +111,7 @@
                 </div>
                 <div class="d-flex justify-content-end">
                     
-                    <div class="mb-0 mb-3"> 
+                    <div class="mb-3">     
                         <a href="{{ route('checkout') }}" class="btn border-secondary py-3 text-primary text-uppercase mb-4" type="button">Lanjut ke Pembayaran</a>
                     </div>
                 </div>
@@ -124,5 +120,73 @@
     </div>
 </div>
 
+
+@endsection
+
+@section('script')
+    <script>
+        function updateQuantity(itemId, change) {
+            var qtyInput = document.getElementById('qty-' + itemId);
+            var currentQty = parseInt(qtyInput.value);
+            var newQty = currentQty + change;
+            if (newQty <= 0) {
+                if(confirm('Kuantitas tidak boleh kurang dari 1. Apakah Anda ingin menghapus item ini dari keranjang?')) {
+                    removeItemFromCart(itemId);
+                }
+                return;
+            }
+
+            fetch("{{ route('cart.update') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({id : itemId, qty: newQty})
+            })
+
+            .then(response => response.json())
+            .then(data => { 
+                if( data.success ) {
+                    qtyInput.value = newQty;
+                    location.reload();
+                } else {
+                    alert('Gagal memperbarui kuantitas. Silakan coba lagi.');
+                }
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memperbarui kuantitas.');
+            });
+            // Kirim permintaan AJAX untuk memperbarui kuantitas di server
+        }
+
+        function removeItemFromCart(itemId) {
+            fetch("{{ route('cart.remove') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({id : itemId})
+            })
+
+            .then(response => response.json())
+            .then(data => { 
+                if( data.success ) {
+                    location.reload();
+                } else {
+                    alert('Gagal menghapus item. Silakan coba lagi.');
+                }
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus item.');
+            });
+        }
+
+    </script>
 
 @endsection
